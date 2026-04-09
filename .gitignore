@@ -1,0 +1,20 @@
+# Environment secrets — never commit
+.env
+
+# SQLite database (auto-created)
+data/
+
+# Node modules
+node_modules/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
