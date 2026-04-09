@@ -1,0 +1,146 @@
+Here's the complete combined prompt:
+
+---
+
+You are a senior web developer specializing in modern, maintainable frontend and backend solutions.
+
+**Task:** Build a complete tattoo studio website from scratch with the following specifications.
+
+---
+
+**Tech Stack:**
+- Vanilla HTML5, CSS3, and JavaScript (ES modules) for the frontend — no frontend framework
+- Node.js with Express for the backend API
+- Use only well-maintained, minimal dependencies (e.g. `nodemailer` for email, `node-fetch` or native `fetch` for API calls)
+- No WordPress, no page builders, no plugins
+
+---
+
+**Pages & structure:**
+- `index.html` — landing page (hero, short intro, call-to-action to booking)
+- `gallery.html` — Instagram feed gallery
+- `booking.html` — appointment booking form
+- `admin/` — minimal server-side logic (email handling, Instagram token refresh)
+
+---
+
+**Feature 1 — Instagram Gallery:**
+- Use the Instagram Basic Display API (OAuth 2.0) to fetch the authenticated user's media feed
+- Implement a lightweight server-side proxy endpoint (`GET /api/instagram`) that fetches and caches the feed (cache TTL is configurable via `INSTAGRAM_CACHE_TTL_SECONDS`) to avoid exposing the access token to the client
+- Display images in a responsive CSS grid on the gallery page — number of columns and max photos displayed are controlled by `config.json`
+- On page load, fetch from the proxy endpoint and render dynamically via vanilla JS
+- Handle long-lived token refresh automatically on the server side
+- Show a fallback message if the feed fails to load
+
+**Feature 2 — Appointment Booking:**
+- Form fields: First name (required), Last name (required), Phone number (required, validated format), Email address (required, validated format), service type (dropdown populated from `config.json`), preferred date/time (constrained by `minNoticeDays` and `maxAdvanceBookingDays` from `config.json`), optional message
+- Client-side validation before submission; also validate server-side
+- On valid submission, the backend (`POST /api/booking`) sends two emails via `nodemailer`:
+  1. To the **customer**: a "booking received, pending confirmation" email
+  2. To the **studio owner**: a notification email containing booking details plus two action links — one to **confirm** the booking (`GET /api/booking/:id/confirm`) and one to **decline** it (`GET /api/booking/:id/decline`)
+- Confirming triggers a confirmation email to the customer; declining triggers a polite rejection email
+- Confirm/decline links expire after a configurable duration (`BOOKING_TOKEN_EXPIRY_HOURS`)
+- Email subjects and templates are driven by `config.json` — support `{placeholder}` substitution for dynamic values like names and studio name
+- Store pending bookings in a simple JSON file or SQLite (no external database service required)
+- Protect the confirm/decline endpoints with a signed token (HMAC, using Node's built-in `crypto` module) so they cannot be guessed or forged
+
+**Security requirements:**
+- Sanitize all user inputs server-side before storing or sending
+- Rate-limit the booking endpoint using `express-rate-limit` — window and max requests are configurable via `.env`
+- Never expose API tokens or secrets to the client — all third-party calls go through the server-side proxy
+- Store secrets in a `.env` file (provide a `.env.example`)
+- Set appropriate HTTP security headers (use `helmet`)
+
+---
+
+**Parameterization — `.env` and `config.json`:**
+
+Split configuration into two files:
+- `.env` — secrets and environment-specific values (never committed)
+- `config.json` — non-secret customization values (committed, safe to edit)
+
+`.env` / `.env.example`:
+```
+# Server
+PORT=3000
+NODE_ENV=production
+BASE_URL=https://your-domain.com        # used for confirm/decline links in emails
+
+# Instagram
+INSTAGRAM_ACCESS_TOKEN=...
+INSTAGRAM_USER_ID=...
+INSTAGRAM_CACHE_TTL_SECONDS=900         # how long to cache the feed server-side
+
+# Email (SMTP)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false                        # true for port 465
+SMTP_USER=...
+SMTP_PASS=...
+OWNER_EMAIL=owner@tattoo-studio.com
+FROM_EMAIL=noreply@tattoo-studio.com
+FROM_NAME=Tattoo Studio
+
+# Security
+HMAC_SECRET=...                          # for signing confirm/decline tokens
+BOOKING_TOKEN_EXPIRY_HOURS=48           # how long confirm/decline links stay valid
+
+# Rate limiting
+RATE_LIMIT_WINDOW_MINUTES=15
+RATE_LIMIT_MAX_REQUESTS=10
+```
+
+`config.json`:
+```json
+{
+  "studio": {
+    "name": "Ink & Soul Tattoo Studio",
+    "tagline": "Your skin, your story.",
+    "address": "Bahnhofstrasse 12, 8001 Zürich",
+    "phone": "+41 44 000 00 00",
+    "email": "info@tattoo-studio.com",
+    "openingHours": "Tue–Sat, 10:00–19:00"
+  },
+  "social": {
+    "instagramHandle": "@inksoultattoo",
+    "instagramProfileUrl": "https://www.instagram.com/inksoultattoo"
+  },
+  "gallery": {
+    "maxPhotosDisplayed": 24,
+    "columns": { "desktop": 4, "tablet": 3, "mobile": 2 }
+  },
+  "booking": {
+    "availableServices": ["Tattoo", "Touch-up", "Consultation", "Flash tattoo"],
+    "minNoticeDays": 2,
+    "maxAdvanceBookingDays": 90
+  },
+  "branding": {
+    "primaryColor": "#1a1a1a",
+    "accentColor": "#c9a84c",
+    "fontHeading": "Playfair Display",
+    "fontBody": "Inter"
+  },
+  "seo": {
+    "metaDescription": "Book your tattoo appointment at Ink & Soul in Zürich.",
+    "metaKeywords": "tattoo, zürich, tattoo studio, booking"
+  },
+  "email": {
+    "subjects": {
+      "bookingReceived": "Your booking request at {studioName}",
+      "bookingConfirmed": "Your appointment is confirmed — {studioName}",
+      "bookingDeclined": "Regarding your booking request at {studioName}",
+      "ownerNotification": "New booking request from {firstName} {lastName}"
+    }
+  }
+}
+```
+
+The backend reads `config.json` at startup and exposes non-sensitive fields to the frontend via `GET /api/config`, so the frontend never hardcodes studio name, colors, services, or copy.
+
+---
+
+**Deliverables:**
+- Full file/folder structure with all source files
+- `package.json` with exact dependencies
+- `.env.example`
+- Short README.md explaining setup, Instagram API token setup, and how to run locally

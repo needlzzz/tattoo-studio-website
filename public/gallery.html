@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse our tattoo gallery — Ink &amp; Soul Tattoo Studio, Zürich.">
+  <title>Gallery — Ink &amp; Soul Tattoo Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* Dynamic column support via CSS variables set by JS */
+    .gallery-grid {
+      grid-template-columns: repeat(var(--gallery-cols-desktop, 4), 1fr);
+    }
+    @media (max-width: 900px) {
+      .gallery-grid {
+        grid-template-columns: repeat(var(--gallery-cols-tablet, 3), 1fr);
+      }
+    }
+    @media (max-width: 660px) {
+      .gallery-grid {
+        grid-template-columns: repeat(var(--gallery-cols-mobile, 2), 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="/" class="navbar__brand" id="nav-brand">Ink &amp; Soul</a>
+      <ul class="navbar__links" id="nav-links" role="list">
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery">Gallery</a></li>
+        <li><a href="/booking">Book Now</a></li>
+      </ul>
+      <button class="navbar__toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-links">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Page Hero -->
+  <header class="page-hero">
+    <div class="container">
+      <h1>Gallery</h1>
+      <p>Our latest work, straight from the studio.</p>
+    </div>
+  </header>
+
+  <!-- Gallery -->
+  <main class="section">
+    <div class="container">
+      <div id="gallery-grid" class="gallery-grid" aria-live="polite" aria-busy="true" aria-label="Instagram gallery">
+        <!-- Populated by gallery.js -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__contact" id="footer-contact"></div>
+      <p class="footer__copy" id="footer-copy">
+        © 2025 Ink &amp; Soul Tattoo Studio. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/gallery.js"></script>
+</body>
+</html>

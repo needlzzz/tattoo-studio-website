@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Book your tattoo appointment at Ink &amp; Soul in Zürich.">
+  <meta name="keywords" content="tattoo, zürich, tattoo studio, booking">
+  <title>Ink &amp; Soul Tattoo Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="/" class="navbar__brand" id="nav-brand">Ink &amp; Soul</a>
+      <ul class="navbar__links" id="nav-links" role="list">
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery">Gallery</a></li>
+        <li><a href="/booking">Book Now</a></li>
+      </ul>
+      <button class="navbar__toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-links">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__content">
+      <span class="hero__eyebrow">Zürich's Premier Tattoo Studio</span>
+      <h1 class="hero__title" id="hero-title">Ink &amp; Soul Tattoo Studio</h1>
+      <p class="hero__subtitle" id="hero-tagline">Your skin, your story.</p>
+      <div class="hero__actions">
+        <a href="/booking" class="btn btn--primary">Book an Appointment</a>
+        <a href="/gallery" class="btn btn--outline">View Gallery</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About strip -->
+  <section class="about section" aria-labelledby="about-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-header__label">The Studio</span>
+        <h2 id="about-heading">Art that stays with you</h2>
+        <p>We create custom tattoos in a clean, welcoming environment. Every piece is designed with you — your ideas, your skin.</p>
+      </div>
+      <div class="about__grid">
+        <div class="about__card">
+          <div class="about__card-icon" aria-hidden="true">📍</div>
+          <h3>Location</h3>
+          <p id="about-address">Bahnhofstrasse 12, 8001 Zürich</p>
+        </div>
+        <div class="about__card">
+          <div class="about__card-icon" aria-hidden="true">🕐</div>
+          <h3>Opening Hours</h3>
+          <p id="about-hours">Tue–Sat, 10:00–19:00</p>
+        </div>
+        <div class="about__card">
+          <div class="about__card-icon" aria-hidden="true">📞</div>
+          <h3>Phone</h3>
+          <p id="about-phone">+41 44 000 00 00</p>
+        </div>
+        <div class="about__card">
+          <div class="about__card-icon" aria-hidden="true">✉️</div>
+          <h3>Email</h3>
+          <p id="about-email">info@tattoo-studio.com</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery preview -->
+  <section class="section" aria-labelledby="gallery-preview-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-header__label">Our Work</span>
+        <h2 id="gallery-preview-heading">Latest from Instagram</h2>
+        <p>Fresh ink, straight from the studio. Follow us for daily updates.</p>
+      </div>
+      <div id="gallery-preview" class="gallery-grid" aria-live="polite" aria-busy="true">
+        <!-- 8 skeleton placeholders while loading -->
+        <div class="gallery-skeleton" aria-hidden="true"></div>
+        <div class="gallery-skeleton" aria-hidden="true"></div>
+        <div class="gallery-skeleton" aria-hidden="true"></div>
+        <div class="gallery-skeleton" aria-hidden="true"></div>
+        <div class="gallery-skeleton" aria-hidden="true"></div>
+        <div class="gallery-skeleton" aria-hidden="true"></div>
+        <div class="gallery-skeleton" aria-hidden="true"></div>
+        <div class="gallery-skeleton" aria-hidden="true"></div>
+      </div>
+      <div style="text-align:center; margin-top: 32px;">
+        <a href="/gallery" class="btn btn--dark">See Full Gallery</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="background: var(--color-surface); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border);" aria-labelledby="cta-heading">
+    <div class="container" style="text-align:center; max-width:600px;">
+      <span class="section-header__label">Ready?</span>
+      <h2 id="cta-heading" style="margin-bottom:16px;">Let's create something together</h2>
+      <p style="color:var(--color-text-muted); margin-bottom:32px;">Book a consultation or your next piece. Same process — just tell us what you have in mind.</p>
+      <a href="/booking" class="btn btn--primary">Book an Appointment</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__contact" id="footer-contact">
+        <!-- Populated by JS -->
+      </div>
+      <p class="footer__copy" id="footer-copy">
+        © 2025 Ink &amp; Soul Tattoo Studio. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/index.js"></script>
+  <script type="module">
+    // Load a preview of the gallery (8 items) on the home page
+    import { loadConfig } from '/js/common.js';
+
+    (async () => {
+      const grid = document.getElementById('gallery-preview');
+      if (!grid) return;
+
+      try {
+        const resp = await fetch('/api/instagram');
+        if (!resp.ok) throw new Error('Feed unavailable');
+        const { items } = await resp.json();
+
+        const preview = (items || []).slice(0, 8);
+        if (preview.length === 0) {
+          grid.innerHTML = '';
+          return;
+        }
+
+        grid.setAttribute('aria-busy', 'false');
+        grid.innerHTML = preview.map((item) => {
+          const imgSrc = item.media_url || item.thumbnail_url || '';
+          return `
+            <a class="gallery-item" href="${item.permalink}" target="_blank" rel="noopener noreferrer" aria-label="View on Instagram">
+              <img src="${imgSrc}" alt="" loading="lazy" decoding="async">
+              <div class="gallery-item__overlay">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <circle cx="12" cy="12" r="4"/>
+                  <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+                </svg>
+              </div>
+            </a>`;
+        }).join('');
+      } catch (err) {
+        grid.innerHTML = '';
+      }
+    })();
+  </script>
+</body>
+</html>

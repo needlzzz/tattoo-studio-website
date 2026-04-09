@@ -1,0 +1,41 @@
+{
+  "studio": {
+    "name": "Ink & Soul Tattoo Studio",
+    "tagline": "Your skin, your story.",
+    "address": "Bahnhofstrasse 12, 8001 Zürich",
+    "phone": "+41 44 000 00 00",
+    "email": "info@tattoo-studio.com",
+    "openingHours": "Tue–Sat, 10:00–19:00"
+  },
+  "social": {
+    "instagramHandle": "@inksoultattoo",
+    "instagramProfileUrl": "https://www.instagram.com/inksoultattoo"
+  },
+  "gallery": {
+    "maxPhotosDisplayed": 24,
+    "columns": { "desktop": 4, "tablet": 3, "mobile": 2 }
+  },
+  "booking": {
+    "availableServices": ["Tattoo", "Touch-up", "Consultation", "Flash tattoo"],
+    "minNoticeDays": 2,
+    "maxAdvanceBookingDays": 90
+  },
+  "branding": {
+    "primaryColor": "#1a1a1a",
+    "accentColor": "#c9a84c",
+    "fontHeading": "Playfair Display",
+    "fontBody": "Inter"
+  },
+  "seo": {
+    "metaDescription": "Book your tattoo appointment at Ink & Soul in Zürich.",
+    "metaKeywords": "tattoo, zürich, tattoo studio, booking"
+  },
+  "email": {
+    "subjects": {
+      "bookingReceived": "Your booking request at {studioName}",
+      "bookingConfirmed": "Your appointment is confirmed — {studioName}",
+      "bookingDeclined": "Regarding your booking request at {studioName}",
+      "ownerNotification": "New booking request from {firstName} {lastName}"
+    }
+  }
+}
