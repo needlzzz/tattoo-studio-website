@@ -1,0 +1,261 @@
+You are a senior web developer specializing in modern, maintainable frontend and backend solutions.
+
+**Task:** Build a complete tattoo studio website from scratch with the following specifications.
+
+---
+
+**Website version — choose one before generating:**
+
+> **Version 1:** Single-page application — all features (hero, gallery, booking form, map, social links) are sections on one scrollable `index.html`. Navigation uses anchor links.
+> **Version 2:** Multi-page site — separate HTML files: `index.html` (hero + intro), `gallery.html`, `booking.html`. Shared header/nav and footer are injected via a common JS module (`common.js`).
+
+Both versions include all four features below. Ask the user which version to build before proceeding.
+
+---
+
+**Tech Stack:**
+- Vanilla HTML5, CSS3, and JavaScript (ES modules) — no frontend framework
+- Node.js with Express for the backend API
+- Only well-maintained, minimal dependencies (`nodemailer` for email, native `fetch` for API calls, `express-rate-limit`, `helmet`, `sharp` for image processing)
+- No WordPress, no page builders, no plugins
+- Use plain HTML wherever no dynamic behavior is needed; use JavaScript only when a feature requires it
+
+---
+
+**Pages & structure (Version 2):**
+- `index.html` — landing page (hero, short intro, call-to-action to booking)
+- `gallery.html` — image gallery
+- `booking.html` — appointment booking form
+- `public/uploads/` — server-managed folder for uploaded gallery images (not committed; excluded via .gitignore)
+- Backend handles: email, image upload/resize, token signing
+
+---
+
+**Feature 1 — Picture Gallery**
+
+**Upload:**
+- A simple password-protected upload endpoint (`POST /api/gallery/upload`) accepts image files (JPEG, PNG, WebP only; reject other MIME types)
+- Upload authentication uses a single admin password stored in .env as `ADMIN_UPLOAD_PASSWORD`; the client sends it as a `Bearer` token in the `Authorization` header
+- Maximum upload file size is configurable via .env (`MAX_UPLOAD_SIZE_MB`, default `10`)
+- After upload, the server uses `sharp` to:
+  - Resize the image so its longest side does not exceed `1600px` (preserving aspect ratio)
+  - Re-encode it as JPEG at quality `80`
+  - Also generate a thumbnail (longest side ≤ `400px`, JPEG quality `70`) saved alongside with a `_thumb` suffix
+- Both the full image and thumbnail are saved to `public/uploads/` with a UUID-based filename (e.g. `a1b2c3-d4e5.jpg` and `a1b2c3-d4e5_thumb.jpg`)
+- A JSON index file (`data/gallery.json`) is maintained server-side; each entry contains: `{ id, filename, thumbFilename, uploadedAt }`
+- A delete endpoint (`DELETE /api/gallery/:id`) removes both files and the entry from the index; also requires the admin `Bearer` token
+
+**Display:**
+- `GET /api/gallery` returns the array from `data/gallery.json`, capped to `maxPhotosDisplayed` from config.json (most recent first)
+- Images are rendered in a CSS grid with column counts from config.json (`desktop`/`tablet`/`mobile`)
+- Thumbnails are used in the grid; clicking one opens the full-size image in a lightbox (pure CSS + minimal JS — no library)
+- Images use `loading="lazy"` and include `width`/`height` attributes to prevent layout shift
+
+---
+
+**Feature 2 — Appointment Booking**
+
+- Form fields: First name (required), Last name (required), Phone number (required, E.164 or local format validated by regex), Email (required, RFC-compliant regex), Service type (dropdown populated from config.json `availableServices`), Preferred date (date picker, constrained: minimum = today + `minNoticeDays`, maximum = today + `maxAdvanceBookingDays`), Preferred time (free text or time picker), Optional message
+- Client-side validation runs on submit and shows inline field errors; submission is blocked until valid
+- Server-side (`POST /api/booking`) re-validates all fields independently; rejects with `400` and error detail if invalid
+- On valid submission the server:
+  1. Generates a `bookingId` (UUID v4)
+  2. Signs two HMAC-SHA256 tokens (using `HMAC_SECRET` from .env): one for confirm, one for decline; each token encodes `{ bookingId, action, expiresAt }` as a base64url payload + HMAC signature
+  3. Saves booking to the store (see below) with status `"pending"`
+  4. Sends email to customer: "booking received, pending confirmation"
+  5. Sends email to owner (`OWNER_EMAIL`): booking details + confirm link (`GET /api/booking/:id/confirm?token=...`) + decline link (`GET /api/booking/:id/decline?token=...`)
+- Confirm/decline endpoints (`GET`):
+  - Verify the HMAC token; if invalid or missing → respond `403`
+  - If the token's `expiresAt` is in the past → respond with a user-friendly HTML page saying "This link has expired"
+  - If the booking is already actioned → respond with "This booking has already been confirmed/declined"
+  - On valid confirm: update status to `"confirmed"`, send confirmation email to customer
+  - On valid decline: update status to `"declined"`, send polite rejection email to customer
+- Token expiry is controlled by `BOOKING_TOKEN_EXPIRY_HOURS` in .env
+- **Booking store:** A JSON file (`data/bookings.json`). Writes use a simple async mutex (a queued promise chain) to prevent concurrent write corruption — no external library needed
+- Email subjects and body templates are read from config.json; support `{placeholder}` substitution for: `{studioName}`, `{firstName}`, `{lastName}`, `{service}`, `{preferredDate}`, `{preferredTime}`, `{confirmLink}`, `{declineLink}`
+
+---
+
+**Feature 3 — Google Maps Integration**
+
+- Configuration in config.json under `studio.coordinates`: `{ "lat": 47.3769, "lng": 8.5417 }` — no Google Maps API key required
+- Display: a plain `<iframe>` embed using `https://www.google.com/maps?q=LAT,LNG&z=15&output=embed`; no JS API, no API key, no billing setup
+- The iframe `src` URL is constructed in the frontend JS (`map.js`) from coordinates fetched via `GET /api/config`; coordinates are never hardcoded in static HTML
+- The iframe's CSP `frame-src` entry must include `https://www.google.com`; no external script domains are needed
+- A "Get Directions" button links to `https://www.google.com/maps/dir/?api=1&destination=LAT,LNG` — opens native Maps app on mobile
+- If no coordinates are configured, the map `<iframe>` is hidden and a plain text address fallback is displayed instead
+
+---
+
+**Feature 4 — Social Media Links**
+
+- All social media accounts are configured exclusively in config.json under a `social.accounts` array — no platform names or URLs appear in the code:
+  ```json
+  "social": {
+    "accounts": [
+      { "platform": "instagram", "url": "https://www.instagram.com/inksoultattoo", "label": "Follow on Instagram" },
+      { "platform": "facebook",  "url": "https://www.facebook.com/inksoultattoo",  "label": "Find us on Facebook" },
+      { "platform": "tiktok",    "url": "https://www.tiktok.com/@inksoultattoo",   "label": "Watch on TikTok" }
+    ]
+  }
+  ```
+- Supported platforms (icon set must include at minimum): `instagram`, `facebook`, `tiktok`, `youtube`, `x` (formerly Twitter), `pinterest`
+- Icons are rendered as inline SVG (no icon font, no external CDN dependency) — one SVG per supported platform, stored in a `public/icons/` folder and inlined at render time
+- Links open in a new tab (`target="_blank" rel="noopener noreferrer"`)
+- Social links appear in the **footer** on all pages; optionally also in the header on mobile (configurable via config.json `social.showInHeader: true/false`)
+- The frontend fetches the list from `GET /api/config` and renders links dynamically so adding/removing a platform in config.json requires no code change
+
+---
+
+**Feature 5 — Admin Booking Dashboard**
+
+- A separate page (`/admin`) served by an Express route (`GET /admin` → `public/admin.html`) that must be registered **before** the SPA wildcard fallback route to prevent it from being shadowed
+- Authentication: the same `ADMIN_UPLOAD_PASSWORD` env var is reused as a Bearer token; the page stores the entered password in `sessionStorage` so a refresh does not require re-entry
+- Login UI: a centered password field + login button; on success the login panel hides and the booking table appears; on failure an inline error is shown
+- All JavaScript in `admin.html` must be in an external file (`public/js/admin.js`) — **no inline `<script>` blocks** — because `helmet`'s `Content-Security-Policy` (`scriptSrc: ["'self'"]`) silently blocks them
+- Bookings list: `GET /api/admin/bookings?status=all|pending|confirmed|declined` returns the array from `data/bookings.json`, sorted newest first, with `confirmToken` and `declineToken` fields stripped from the response
+- Actions: `POST /api/admin/bookings/:id/action` with body `{ "action": "confirm" | "decline" }` updates the booking status and sends the appropriate customer email (same templates as the token link flow)
+- The table shows: booking date, customer name, service, preferred date/time, status badge, and confirm/decline action buttons (buttons are disabled once the booking is already actioned)
+- A status filter (All / Pending / Confirmed / Declined) re-fetches the list from the API
+- All text inserted into the DOM must be escaped to prevent XSS (use a simple `esc()` helper that sets `textContent` or escapes `<>&"` before using `innerHTML`)
+
+---
+
+**Design Guidelines — Tattoo Studio Aesthetic**
+
+The visual design must reflect the atmosphere of a professional tattoo studio: dark, bold, and art-forward. The CSS must implement all of the following:
+
+- **High-contrast backgrounds:** Page background `#080808` (near-black); section alternate `#0d0d0d`; surface/card background `#111`. Never use mid-grey backgrounds — the contrast between deep black and light text/ink imagery is the defining visual trait.
+- **Focus on imagery:** The gallery grid must use tight spacing (`gap: 3px`), zero border-radius, and a light desaturation filter (`filter: grayscale(25%) brightness(.92)`) at rest — reverting to full colour on hover — so the artwork itself is always the focal point. The lightbox background must be `rgba(0,0,0,.95)` with no rounding.
+- **Minimalist & bold typography:**
+  - Heading font: **Cinzel** (Google Fonts) — uppercase roman caps with classical tattoo-parlour authority. Used for all `h1`–`h3`, nav links, buttons, section labels.
+  - Sub/accent font: **Cormorant Garamond** (Google Fonts) — high-contrast elegant serif, used in italic for taglines, intro copy, and testimonials.
+  - Body font: **Inter** — clean and legible for form fields, info text, and small UI.
+  - All `<h1>`–`<h3>` must be `text-transform: uppercase` and `letter-spacing: .12em`+.
+  - Buttons use `font-family: var(--font-heading)`, `letter-spacing: .2em`, `text-transform: uppercase`, and a thin 1px border — no heavy fills for secondary actions.
+- **Moody & edgy feel:**
+  - The hero section overlays a noise texture (inline SVG `<feTurbulence>` data URI as a CSS `background`) at low opacity to add grain depth.
+  - CSS `::before`/`::after` pseudo-elements add corner bracket decorations on the hero content box.
+  - Section labels (small uppercase category tags above headings) are flanked by short gold `<hr>`-style lines.
+  - Border radius across the entire design: `--radius: 2px` — sharp-cornered, not rounded.
+  - Borders: `--color-border: #1e1e1e` — nearly invisible, just enough to define structure against the deep black.
+- **Negative space usage:** Generous padding (`5rem 0` on sections, `clamp(5rem, 12vw, 9rem)` for the hero). Gallery items use `aspect-ratio: 1` so there is no wasted space — ink dominates the full cell. Social icons are square (`border-radius: 0`), not circular.
+- **Accent colour:** `--color-accent: #c9a84c` (warm antique gold) — used sparingly for CTAs, section label lines, hover states, and active nav indicators only.
+- **CSS custom properties** to define the entire design token set, consumed everywhere in the stylesheet. `app.js` injects `branding.primaryColor`, `branding.accentColor`, and `branding.fontHeading` from `/api/config` as inline CSS vars on `:root` at boot.
+
+---
+
+**Security requirements:**
+- Sanitize all user inputs server-side before storing or emailing (strip HTML tags from free-text fields)
+- Rate-limit `POST /api/booking` and `POST /api/gallery/upload` separately via `express-rate-limit`; window and max requests configurable via .env (`RATE_LIMIT_WINDOW_MINUTES`, `RATE_LIMIT_MAX_REQUESTS`, `UPLOAD_RATE_LIMIT_MAX`)
+- Store all secrets in .env; provide `.env.example` with placeholder values and comments
+- Set HTTP security headers via `helmet`; configure `Content-Security-Policy` with `scriptSrc: ["'self'"]` (no inline scripts anywhere) and `frameSrc: ['https://www.google.com']` for the Maps iframe — no external JS domain needed
+- No API keys are ever surfaced to the browser; `/api/config` returns only non-secret config (coordinates, branding, social accounts, etc.)
+
+---
+
+**Parameterization — .env and config.json:**
+
+.env / `.env.example`:
+```
+# Server
+PORT=3000
+NODE_ENV=production
+BASE_URL=https://your-domain.com
+
+# Email (SMTP)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=...
+SMTP_PASS=...
+OWNER_EMAIL=owner@tattoo-studio.com
+FROM_EMAIL=noreply@tattoo-studio.com
+FROM_NAME=Tattoo Studio
+
+# Security
+HMAC_SECRET=...
+BOOKING_TOKEN_EXPIRY_HOURS=48
+
+# Rate limiting
+RATE_LIMIT_WINDOW_MINUTES=15
+RATE_LIMIT_MAX_REQUESTS=10
+UPLOAD_RATE_LIMIT_MAX=20
+
+# Gallery
+ADMIN_UPLOAD_PASSWORD=...
+MAX_UPLOAD_SIZE_MB=10
+```
+
+config.json:
+```json
+{
+  "studio": {
+    "name": "Ink & Soul Tattoo Studio",
+    "tagline": "Your skin, our craft.",
+    "address": "Bahnhofstrasse 12, 8001 Zürich",
+    "phone": "+41 44 000 00 00",
+    "email": "info@tattoo-studio.com",
+    "openingHours": "Tue–Sat, 10:00–19:00",
+    "coordinates": { "lat": 47.3769, "lng": 8.5417 },
+    "googleMapsPlaceId": ""
+  },
+  "social": {
+    "showInHeader": false,
+    "accounts": [
+      { "platform": "instagram", "url": "https://www.instagram.com/inksoultattoo", "label": "Follow on Instagram" }
+    ]
+  },
+  "gallery": {
+    "maxPhotosDisplayed": 24,
+    "columns": { "desktop": 4, "tablet": 3, "mobile": 2 }
+  },
+  "booking": {
+    "availableServices": ["Tattoo", "Touch-up", "Consultation", "Flash tattoo"],
+    "minNoticeDays": 2,
+    "maxAdvanceBookingDays": 90
+  },
+  "branding": {
+    "primaryColor": "#0d0d0d",
+    "accentColor": "#c9a84c",
+    "fontHeading": "Cinzel",
+    "fontBody": "Inter"
+  },
+  "seo": {
+    "metaDescription": "Book your tattoo appointment at Ink & Soul in Zürich.",
+    "metaKeywords": "tattoo, zürich, tattoo studio, booking"
+  },
+  "email": {
+    "subjects": {
+      "bookingReceived": "Your booking request at {studioName}",
+      "bookingConfirmed": "Your appointment is confirmed — {studioName}",
+      "bookingDeclined": "Regarding your booking request at {studioName}",
+      "ownerNotification": "New booking request from {firstName} {lastName}"
+    }
+  }
+}
+```
+
+---
+
+**Deliverables:**
+- Full file/folder structure with all source files
+- package.json with exact dependency versions
+- `.env.example`
+- README.md covering: local setup, how to upload gallery images, SMTP configuration, and how to run in production
+
+---
+
+**Key changes summarized:**
+
+| Area | What changed |
+|---|---|
+| Feature 1 | Replaced vague/contradictory description with full upload flow, `sharp` resize specs, thumbnail generation, JSON index, admin auth, delete endpoint, lightbox, lazy loading |
+| Feature 3 | Replaced Google Maps JS API (API key required) with plain `<iframe>` embed — no key, no billing, no external script. CSP uses `frameSrc` only. |
+| Feature 4 | Defined `social.accounts` array structure, named supported platforms, specified inline SVG icons, placement (footer/header toggle), dynamic rendering from `/api/config` |
+| Feature 5 (new) | Admin booking dashboard at `/admin` — password auth via Bearer token, bookings table with confirm/decline actions, status filter, CSP-compliant external JS only |
+| Design (new) | Full tattoo-studio aesthetic: deep-black palette, Cinzel + Cormorant Garamond fonts, sharp corners, noise texture hero, gold accents, grayscale-to-colour gallery hover |
+| Versions | Moved to the top and clarified structural differences per version |
+| Feature 2 | Added concurrent write mutex, expired/already-actioned token responses, booking ID generation detail |
+| .env | Removed `GOOGLE_MAPS_API_KEY`; added `ADMIN_UPLOAD_PASSWORD`, `MAX_UPLOAD_SIZE_MB`, `UPLOAD_RATE_LIMIT_MAX` |
+| config.json | Updated `branding.fontHeading` → `Cinzel`, `primaryColor` → `#0d0d0d`; added `studio.coordinates`; removed `googleMapsPlaceId` dependency |

@@ -1,0 +1,53 @@
+{
+  "studio": {
+    "name": "Ink & Soul Tattoo Studio",
+    "tagline": "Your skin, our craft.",
+    "address": "Bahnhofstrasse 12, 8001 Zürich",
+    "phone": "+41 44 000 00 00",
+    "email": "info@tattoo-studio.com",
+    "openingHours": "Tue–Sat, 10:00–19:00",
+    "coordinates": { "lat": 47.3769, "lng": 8.5417 },
+    "googleMapsPlaceId": ""
+  },
+  "social": {
+    "showInHeader": false,
+    "accounts": [
+      { "platform": "instagram", "url": "https://www.instagram.com/inksoultattoo", "label": "Follow on Instagram" },
+      { "platform": "facebook",  "url": "https://www.facebook.com/inksoultattoo",  "label": "Find us on Facebook" },
+      { "platform": "tiktok",    "url": "https://www.tiktok.com/@inksoultattoo",   "label": "Watch on TikTok" }
+    ]
+  },
+  "gallery": {
+    "maxPhotosDisplayed": 24,
+    "columns": { "desktop": 4, "tablet": 3, "mobile": 2 }
+  },
+  "booking": {
+    "availableServices": ["Tattoo", "Touch-up", "Consultation", "Flash tattoo"],
+    "minNoticeDays": 2,
+    "maxAdvanceBookingDays": 90
+  },
+  "branding": {
+    "primaryColor": "#0d0d0d",
+    "accentColor": "#c9a84c",
+    "fontHeading": "Cinzel",
+    "fontBody": "Inter"
+  },
+  "seo": {
+    "metaDescription": "Book your tattoo appointment at Ink & Soul in Zürich.",
+    "metaKeywords": "tattoo, zürich, tattoo studio, booking"
+  },
+  "email": {
+    "subjects": {
+      "bookingReceived": "Your booking request at {studioName}",
+      "bookingConfirmed": "Your appointment is confirmed — {studioName}",
+      "bookingDeclined": "Regarding your booking request at {studioName}",
+      "ownerNotification": "New booking request from {firstName} {lastName}"
+    },
+    "templates": {
+      "bookingReceivedCustomer": "Hi {firstName},\n\nThank you for reaching out to {studioName}! We've received your booking request for {service} on {preferredDate} at {preferredTime}.\n\nOur team will review your request and get back to you shortly.\n\nBest regards,\nThe {studioName} Team",
+      "bookingConfirmedCustomer": "Hi {firstName},\n\nGreat news! Your appointment for {service} on {preferredDate} at {preferredTime} has been confirmed.\n\nWe look forward to seeing you!\n\nBest regards,\nThe {studioName} Team",
+      "bookingDeclinedCustomer": "Hi {firstName},\n\nUnfortunately, we are unable to accommodate your booking request for {service} on {preferredDate} at {preferredTime}.\n\nPlease feel free to reach out to us again for alternative dates.\n\nBest regards,\nThe {studioName} Team",
+      "ownerNotification": "New booking request received:\n\nName: {firstName} {lastName}\nService: {service}\nDate: {preferredDate}\nTime: {preferredTime}\nPhone: {phone}\nEmail: {email}\nMessage: {message}\n\nConfirm: {confirmLink}\nDecline: {declineLink}"
+    }
+  }
+}

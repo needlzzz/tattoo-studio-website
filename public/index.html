@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Book your tattoo appointment at Ink &amp; Soul in Zürich.">
+  <meta name="keywords" content="tattoo, zürich, tattoo studio, booking">
+
+  <title>Ink &amp; Soul Tattoo Studio</title>
+
+  <!-- Google Fonts — non-blocking -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <!-- Favicon placeholder -->
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+</head>
+<body>
+
+<!-- ── Scroll progress bar ─────────────────────────── -->
+<div id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ════════════════════════════════════════════════════
+     HEADER
+     ════════════════════════════════════════════════════ -->
+<header id="site-header" role="banner">
+  <div class="container header-inner">
+
+    <a href="#hero" class="site-logo" aria-label="Ink &amp; Soul — back to top">
+      Ink &amp; <span>Soul</span>
+    </a>
+
+    <nav id="main-nav" aria-label="Main navigation">
+      <ul>
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#booking">Book</a></li>
+        <li><a href="#map-section">Find Us</a></li>
+      </ul>
+    </nav>
+
+    <!-- Optional header social icons (shown/hidden by JS from config.social.showInHeader) -->
+    <div id="header-social" class="header-social hidden" aria-label="Social media">
+      <ul class="social-list" aria-label="Social media links"></ul>
+    </div>
+
+    <button
+      id="hamburger"
+      class="hamburger"
+      aria-controls="main-nav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════════════
+     HERO
+     ════════════════════════════════════════════════════ -->
+<section id="hero" aria-labelledby="hero-heading">
+  <div class="hero-content">
+    <span class="section-label">Welcome to</span>
+    <h1 id="hero-heading">
+      Ink &amp; <span class="text-accent">Soul</span><br>
+      Tattoo Studio
+    </h1>
+    <p class="hero-tagline" data-studio-tagline>Your skin, our craft.</p>
+    <div class="hero-cta">
+      <a href="#booking" class="btn btn-primary">Book an Appointment</a>
+      <a href="#gallery" class="btn btn-outline">View Gallery</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════
+     GALLERY
+     ════════════════════════════════════════════════════ -->
+<section id="gallery" aria-labelledby="gallery-heading">
+  <div class="container">
+    <span class="section-label">Our Work</span>
+    <h2 id="gallery-heading">Gallery</h2>
+    <div class="divider" aria-hidden="true"></div>
+    <p class="text-muted" style="margin-bottom:2.5rem;">
+      Every piece is a collaboration between artist and skin.
+    </p>
+
+    <!-- Grid populated by gallery.js -->
+    <div
+      id="gallery-grid"
+      class="gallery-grid"
+      role="list"
+      aria-label="Tattoo photo gallery"
+    ></div>
+  </div>
+</section>
+
+<!-- ── Lightbox (hidden by default) ───────────────────── -->
+<div
+  id="lightbox"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Photo lightbox"
+  aria-hidden="true"
+>
+  <button id="lightbox-close" aria-label="Close lightbox">&times;</button>
+  <button id="lightbox-prev"  aria-label="Previous photo">&#8249;</button>
+  <img src="" alt="" style="opacity:0;transition:opacity .2s ease">
+  <button id="lightbox-next"  aria-label="Next photo">&#8250;</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     BOOKING
+     ════════════════════════════════════════════════════ -->
+<section id="booking" aria-labelledby="booking-heading">
+  <div class="container">
+    <div class="booking-grid">
+
+      <!-- Left: intro & studio info -->
+      <div class="booking-intro">
+        <span class="section-label">Let's Create Together</span>
+        <h2 id="booking-heading">Book an Appointment</h2>
+        <div class="divider" aria-hidden="true"></div>
+        <p>
+          Ready to start your tattoo journey? Fill in the form and we'll
+          confirm your appointment within 48 hours.
+        </p>
+        <dl class="booking-info" style="margin-top:1.5rem">
+          <dt>Studio</dt>
+          <dd data-studio-name>Ink &amp; Soul Tattoo Studio</dd>
+
+          <dt>Address</dt>
+          <dd data-studio-address>Bahnhofstrasse 12, 8001 Zürich</dd>
+
+          <dt>Phone</dt>
+          <dd><a data-studio-phone href="tel:+41440000000">+41 44 000 00 00</a></dd>
+
+          <dt>Email</dt>
+          <dd><a data-studio-email href="mailto:info@tattoo-studio.com">info@tattoo-studio.com</a></dd>
+
+          <dt>Opening Hours</dt>
+          <dd data-studio-hours>Tue–Sat, 10:00–19:00</dd>
+        </dl>
+      </div>
+
+      <!-- Right: form -->
+      <div>
+        <form
+          id="booking-form"
+          class="booking-form"
+          novalidate
+          aria-label="Appointment booking form"
+        >
+
+          <div class="form-row">
+            <div class="field">
+              <label for="field-first-name">
+                First Name <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="text"
+                id="field-first-name"
+                name="firstName"
+                autocomplete="given-name"
+                required
+                aria-required="true"
+                aria-describedby="err-first-name"
+              >
+              <span id="err-first-name" class="error-msg" role="alert"></span>
+            </div>
+
+            <div class="field">
+              <label for="field-last-name">
+                Last Name <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="text"
+                id="field-last-name"
+                name="lastName"
+                autocomplete="family-name"
+                required
+                aria-required="true"
+                aria-describedby="err-last-name"
+              >
+              <span id="err-last-name" class="error-msg" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="field-phone">
+                Phone <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="tel"
+                id="field-phone"
+                name="phone"
+                autocomplete="tel"
+                required
+                aria-required="true"
+                aria-describedby="err-phone"
+                placeholder="+41 44 000 00 00"
+              >
+              <span id="err-phone" class="error-msg" role="alert"></span>
+            </div>
+
+            <div class="field">
+              <label for="field-email">
+                Email <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="email"
+                id="field-email"
+                name="email"
+                autocomplete="email"
+                required
+                aria-required="true"
+                aria-describedby="err-email"
+              >
+              <span id="err-email" class="error-msg" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="field-service">
+              Service <span class="required" aria-hidden="true">*</span>
+            </label>
+            <!-- Options populated by booking.js from config -->
+            <select
+              id="field-service"
+              name="service"
+              required
+              aria-required="true"
+              aria-describedby="err-service"
+            >
+              <option value="">— Select a service —</option>
+            </select>
+            <span id="err-service" class="error-msg" role="alert"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="field-preferred-date">
+                Preferred Date <span class="required" aria-hidden="true">*</span>
+              </label>
+              <!-- min/max set by booking.js from config -->
+              <input
+                type="date"
+                id="field-preferred-date"
+                name="preferredDate"
+                required
+                aria-required="true"
+                aria-describedby="err-preferred-date"
+              >
+              <span id="err-preferred-date" class="error-msg" role="alert"></span>
+            </div>
+
+            <div class="field">
+              <label for="field-preferred-time">
+                Preferred Time <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="time"
+                id="field-preferred-time"
+                name="preferredTime"
+                required
+                aria-required="true"
+                aria-describedby="err-preferred-time"
+              >
+              <span id="err-preferred-time" class="error-msg" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="field-message">Message (optional)</label>
+            <textarea
+              id="field-message"
+              name="message"
+              rows="4"
+              placeholder="Describe your tattoo idea, size, placement, reference images…"
+              aria-describedby="err-message"
+            ></textarea>
+            <span id="err-message" class="error-msg" role="alert"></span>
+          </div>
+
+          <div id="booking-status" class="form-status" role="status" aria-live="polite"></div>
+
+          <button type="submit" class="btn btn-primary" style="align-self:flex-start">
+            Send Booking Request
+          </button>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════
+     MAP & CONTACT
+     ════════════════════════════════════════════════════ -->
+<section id="map-section" aria-labelledby="map-heading">
+  <div class="container">
+    <span class="section-label">Visit Us</span>
+    <h2 id="map-heading">Find the Studio</h2>
+    <div class="divider" aria-hidden="true"></div>
+
+    <div class="map-wrapper">
+
+      <div>
+        <dl class="map-info">
+          <dt>Address</dt>
+          <dd data-studio-address>Bahnhofstrasse 12, 8001 Zürich</dd>
+
+          <dt>Phone</dt>
+          <dd><a data-studio-phone href="tel:+41440000000">+41 44 000 00 00</a></dd>
+
+          <dt>Email</dt>
+          <dd><a data-studio-email href="mailto:info@tattoo-studio.com">info@tattoo-studio.com</a></dd>
+
+          <dt>Opening Hours</dt>
+          <dd data-studio-hours>Tue–Sat, 10:00–19:00</dd>
+        </dl>
+
+        <a
+          data-directions
+          href="#"
+          class="btn btn-outline"
+          style="margin-top:1.75rem"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Get directions to the studio"
+        >
+          Get Directions
+        </a>
+      </div>
+
+      <div>
+        <!-- Map canvas — shown when API key is available -->
+        <div
+          id="map-container"
+          aria-label="Map showing studio location"
+          role="img"
+        ></div>
+
+        <!-- Plain-text fallback — shown when API key is missing -->
+        <div id="map-fallback" class="map-fallback" role="region" aria-label="Studio address">
+          <p class="text-muted">Map not available.</p>
+          <p style="margin-top:.5rem" data-studio-address>Bahnhofstrasse 12, 8001 Zürich</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════
+     FOOTER
+     ════════════════════════════════════════════════════ -->
+<footer id="site-footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-inner">
+
+      <div class="footer-brand">
+        <span class="site-logo">Ink &amp; <span>Soul</span></span>
+        <p data-studio-tagline>Your skin, our craft.</p>
+        <p class="mt-2 text-muted" data-studio-address style="font-size:.85rem"></p>
+      </div>
+
+      <nav class="footer-links" aria-label="Footer navigation">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="#hero">Home</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#booking">Book an Appointment</a></li>
+          <li><a href="#map-section">Find Us</a></li>
+        </ul>
+      </nav>
+
+      <div>
+        <h4 style="font-size:.75rem;text-transform:uppercase;letter-spacing:.14em;color:var(--color-accent);margin-bottom:.75rem">
+          Follow Us
+        </h4>
+        <!-- Populated by social.js from /api/config -->
+        <ul id="footer-social-list" class="social-list" aria-label="Social media links"></ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>
+        &copy; <span id="footer-year"></span>
+        <span data-studio-name>Ink &amp; Soul Tattoo Studio</span>.
+        All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Set current year without JS module
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+</script>
+
+<!-- Main ES module entry point -->
+<script type="module" src="/js/app.js"></script>
+
+</body>
+</html>
